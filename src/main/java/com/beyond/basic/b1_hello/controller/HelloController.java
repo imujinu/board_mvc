@@ -2,8 +2,14 @@ package com.beyond.basic.b1_hello.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.Arrays;
 
 
 //어노테이션 내에 컴포넌트 어노테이션이 붙어있을 경우 별도의 객체를 생성할 필요가 없는 싱글톤 객체 생성한다.
@@ -64,4 +70,82 @@ public class HelloController {
 
         return new Hello(inputName,inputEmail);
     }
+
+    //case 6. parameter가 많아질 경우, 데이터 바인딩을 통해 input값 처리
+    // 데이터 바인딩 : param을 이용하여 객체로 생성
+
+    @GetMapping("/param3")
+    @ResponseBody
+//    public String param3(Hello hello)
+    public String param3(@ModelAttribute Hello hello){
+    //param 형식의 데이터를 받겠다라는 것을 명시적으로 표현
+        System.out.println(hello);
+        return "ok";
+    }
+
+    // case 7. 서버에서 화면을 return, 사용자로부터 넘어오는 input 값을 활용하여 동적인 화면 생성
+    // 서버에서 화면(+데이터)을 렌더링 해주는 ssr 방식 ( csr은 서버는 데이터만)
+    // mvc(model, view , controller ) 패턴이라고도 함
+    @GetMapping("/model-param")
+    public String modelParam(@RequestParam(value="id")Long inputId, Model model){
+        // model 객체는 데이터를 화면에 전달해주는 역할을 한다.
+        // name 이라는 키에 hong을 key value로 전달
+        if(inputId==1){
+            model.addAttribute("name" , "hong1");
+            model.addAttribute("email" , "hong1@naver.com");
+        }else if (inputId==2){
+            model.addAttribute("name" , "hong2");
+            model.addAttribute("email" , "hong2@naver.com");
+        }
+
+        return "helloworld2";
+    }
+
+    //post 요청의 case들 : url 인코딩 방식 또는 multipart-formdata, json
+    // case1. text만 있는 form-data 형식
+    @GetMapping("/form-view")
+    public String formView(){
+        return "form-view";
+    }
+
+    @PostMapping("/form-view")
+    @ResponseBody
+    // get 요청에 url에 파라미터방식과 동일한 데이터 형식이므로, RequestParam 데이터 바인딩 방식 가능
+    public String formViewPost(@ModelAttribute Hello hello, HttpServletRequest httpServletRequest){
+        httpServletRequest.getParameterMap().forEach((key, value) ->
+                System.out.println(key + " = " + Arrays.toString(value))
+        );
+        System.out.println(hello);
+        return"ok";
+    }
+
+
+    // case 2-1. text와 file이 있는 form-data 형식(순수 html로 제출)
+    @GetMapping("/form-file-view")
+    public String formFileView(){
+        return "form-file-view";
+    }
+
+    @PostMapping("/form-file-view")
+    @ResponseBody
+    public String formFileViewPost(@ModelAttribute Hello hello,
+                                   @RequestParam(value = "photo")MultipartFile photo){
+        System.out.println(hello);
+        System.out.println(photo.getOriginalFilename());
+        return"ok";
+    }
+    // case 2-2. text와 file이 있는 form-data 형식(js 로 제출)
+    @GetMapping("/axios-file-view")
+    public String axiosFileView(){
+        return "axios-file-view";
+    }
+
+    // case 3. text와 멀티 file이 있는 form-data 형식
+
+    // case 4. json 데이터 처리
+
+    // case 5. 중첩된 json 데이터 처리
+
+    // case 6. json+file 같이 처리할 떄  (text는 json으로)
+
 }
