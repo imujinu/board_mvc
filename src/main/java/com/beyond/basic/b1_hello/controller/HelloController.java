@@ -199,10 +199,13 @@ public class HelloController {
         return "axios-json-file-view";
     }
 
-    @PostMapping("/axios-json-file-view")
-    @ResponseBody
-    public String axiosJsonFileViewPost(){
-        return "ok";
-    }
+        @PostMapping("/axios-json-file-view")
+        @ResponseBody
+        public String axiosJsonFileViewPost(@RequestPart(value = "hello")Hello hello,
+                                            @RequestPart(value= "photo")MultipartFile photo){
+            System.out.println(hello);
+            System.out.println(photo.getOriginalFilename());
+            return "ok";
+        }
 
 }
