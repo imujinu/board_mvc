@@ -12,6 +12,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class Hello {
     private String name;
     private String email;
+
 //    private MultipartFile photo;
 
 

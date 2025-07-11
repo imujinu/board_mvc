@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 
 //어노테이션 내에 컴포넌트 어노테이션이 붙어있을 경우 별도의 객체를 생성할 필요가 없는 싱글톤 객체 생성한다.
@@ -141,11 +143,66 @@ public class HelloController {
     }
 
     // case 3. text와 멀티 file이 있는 form-data 형식
+    @GetMapping("/axios-multi-file-view")
+    public String axiosMultiFileView(){
+        return "axios-multi-file-view";
+    }
 
+    @PostMapping("/axios-multi-file-view")
+    @ResponseBody
+    public String axiosMultiFileViewPost(@ModelAttribute Hello hello,
+                                   @RequestParam(value = "photos") List<MultipartFile> photos){
+        System.out.println(hello);
+        for(int i=0; i<photos.size(); i++){
+            System.out.println(photos.get(i).getOriginalFilename());
+
+        }
+        return"ok";
+    }
     // case 4. json 데이터 처리
+
+    @GetMapping("/axios-json-view")
+    public String axiosJsonView(){
+        return "axios-json-view";
+    }
+
+    @PostMapping("/axios-json-view")
+    @ResponseBody
+    //RequestBody : json 형식으로 데이터가 들어올 때 객체로 자동 파싱
+    public String axiosJsonViewPost(@RequestBody Hello hello){
+        System.out.println(hello);
+        return "ok";
+    }
+
 
     // case 5. 중첩된 json 데이터 처리
 
+    @GetMapping("/axios-nested-json-view")
+    public String axiosNestedJsonView(){
+        return "axios-nested-json-view";
+    }
+
+    @PostMapping("/axios-nested-json-view")
+    @ResponseBody
+    //RequestBody : json 형식으로 데이터가 들어올 때 객체로 자동 파싱
+    public String axiosNestedJsonViewPost(@RequestBody Student student){
+        System.out.println(student);
+
+        return "ok";
+    }
+
     // case 6. json+file 같이 처리할 떄  (text는 json으로)
+    // 데이터 형식 : hello = {name:"xx", email : "xx"}&photo=이미지.jpg
+    // 결론은 단순 json 구조가 아닌, multipart-formdata구조안에 json을 넣는 구조
+    @GetMapping("/axios-json-file-view")
+    public String axiosJsonFileView(){
+        return "axios-json-file-view";
+    }
+
+    @PostMapping("/axios-json-file-view")
+    @ResponseBody
+    public String axiosJsonFileViewPost(){
+        return "ok";
+    }
 
 }
