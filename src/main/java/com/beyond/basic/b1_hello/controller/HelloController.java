@@ -201,8 +201,8 @@ public class HelloController {
 
         @PostMapping("/axios-json-file-view")
         @ResponseBody
-        public String axiosJsonFileViewPost(@RequestPart(value = "hello")Hello hello,
-                                            @RequestPart(value= "photo")MultipartFile photo){
+        public String axiosJsonFileViewPost(@RequestPart("hello")Hello hello,
+                                            @RequestPart("photo")MultipartFile photo){
             System.out.println(hello);
             System.out.println(photo.getOriginalFilename());
             return "ok";
