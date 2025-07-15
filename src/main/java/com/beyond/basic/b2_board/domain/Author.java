@@ -11,13 +11,13 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Author {
-    private Long id;
-    private String name;
-    private String password;
-    private String email;
+        private Long id;
+        private String name;
+        private String password;
+        private String email;
 
     public Author(String name, String password, String email) {
-        this.id = AuthorMemoryRepository.id;
+//        this.id = AuthorMemoryRepository.id;
         this.name = name;
         this.password = password;
         this.email = email;
@@ -28,10 +28,20 @@ public class Author {
     }
 
     public AuthorDetailDto detailFromEntity(){
-        return new AuthorDetailDto(id,email,name);
+        return new AuthorDetailDto(id,name,email);
     }
 
     public AuthorListDto listFromEntity(){
         return new AuthorListDto(id,name);
+    }
+
+    @Override
+    public String toString() {
+        return "Author{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", password='" + password + '\'' +
+                ", email='" + email + '\'' +
+                '}';
     }
 }

@@ -15,7 +15,7 @@ public class AuthorCreateDto {
     private String password;
 
     public Author authorToEntity(){
-        return new Author(this.name,this.email,this.password);
+        return new Author(this.name,this.password,this.email);
     }
 }
 
