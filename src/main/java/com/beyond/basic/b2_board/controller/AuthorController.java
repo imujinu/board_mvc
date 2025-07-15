@@ -5,6 +5,7 @@ import com.beyond.basic.b2_board.dto.*;
 import com.beyond.basic.b2_board.service.AuthorService;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -22,13 +23,24 @@ public class AuthorController {
     //회원가입
 
     @PostMapping("/create")
-    public String save(@RequestBody AuthorCreateDto authorCreateDto){
-        try{
+    public ResponseEntity<String> save(@RequestBody AuthorCreateDto authorCreateDto) {
+//        try{
+//        this.authorService.save(authorCreateDto);
+//        return new ResponseEntity<>("회원가입 완료", HttpStatus.CREATED);
+//        }catch (IllegalArgumentException e){
+//            e.printStackTrace();
+//            // 생성자 매개변수로 body부분의 객체와 header 부분의 상태코드
+//            // 제네릭 타입은 body부의 타입을 결정한 것이다
+//            // 여러 타입을 return 하려면 object를 타입으로 지정하면 됨
+//            ResponseEntity<String> response = new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+//            return response;
+//        }
+//    }
+        //controllerAdvice로 예외를 전역적으로 처리하는 게 가능함.
+//        this.authorService.save(authorCreateDto);
+
         this.authorService.save(authorCreateDto);
-        return "ok";
-        }catch (IllegalArgumentException e){
-            return e.getMessage();
-        }
+        return new ResponseEntity<>("회원가입 완료", HttpStatus.CREATED);
     }
 
     //회원목록 조회
@@ -41,37 +53,37 @@ public class AuthorController {
     //회원 상세 조회 : id로 조회 author/detail/1
     // 서버에서 별도의 try catch 하지 않으면, 에러 발생ㅅ ㅣ500에러 + 스프링의 포맷으로 에러 리턴
     @GetMapping("/detail/{id}")
-    public Object findById(@PathVariable Long id){
+    public ResponseEntity<?> findById(@PathVariable Long id){
         try{
-        return this.authorService.findById(id);
-        }catch (RuntimeException e){
+            AuthorDetailDto author = this.authorService.findById(id);
+        return new ResponseEntity<>(new CommonDto(author,HttpStatus.ACCEPTED.value(), "유저 조회 성공"), HttpStatus.ACCEPTED);
+        }catch (NoSuchElementException e){
             e.printStackTrace();
-            return new NoSuchElementException("검색 결과가 존재하지 않습니다.");
+            return new ResponseEntity<>(new CommonErrorDto(HttpStatus.NOT_FOUND.value(), "회원 조회 실패"), HttpStatus.NOT_FOUND);
         }
     }
 
     //비밀번호 수정 : email,password -> json
     // get 조회 post 등록 patch 부분수정 put 대체 delete 삭제
     @PatchMapping("/updatePw")
-    public String updatePw(@RequestBody AuthorUpdatePw authorUpdatePw){
+    public ResponseEntity<String> updatePw(@RequestBody AuthorUpdatePw authorUpdatePw){
         try{
         this.authorService.updatePassword(authorUpdatePw);
-        return "비밀번호 변경 완료";
+        return new ResponseEntity<>("비밀번호 변경 완료", HttpStatus.ACCEPTED);
         }catch (RuntimeException e){
-            return "비밀번호 변경 실패";
+            return new ResponseEntity<>("비밀번호 변경 실패", HttpStatus.BAD_REQUEST);
         }
     }
 
     //회원퇄퇴(삭제) : /author/1
     @DeleteMapping("/delete/{id}")
-    public String delete(@PathVariable Long id){
+    public ResponseEntity<String> delete(@PathVariable Long id){
         try{
             this.authorService.delete(id);
-            return "회원 탈퇴 완료";
+            return new ResponseEntity<>("회원 탈퇴 완료", HttpStatus.ACCEPTED);
         }catch (RuntimeException e){
-            return e.getMessage();
-        }
+            return new ResponseEntity<>("회원 탈퇴 실패", HttpStatus.BAD_REQUEST);
     }
 
 
-}
+}}

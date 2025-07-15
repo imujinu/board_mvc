@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.stream.Collectors;
 
 //Component로 대체 가능 (트랜잭션 처리가 없는 경우)
 @Service
@@ -44,21 +45,23 @@ public class AuthorService {
         authorMemoryRepository.findByEmail(authorCreateDto.getEmail()).ifPresent(a -> { throw new IllegalArgumentException("이미 존재하는 이메일입니다."); });
                         //비밀번호 길이 검증
 
-        Author author = new Author(authorCreateDto.getName(), authorCreateDto.getPassword(), authorCreateDto.getEmail());
-        this.authorMemoryRepository.save(author);
+        this.authorMemoryRepository.save(authorCreateDto.authorToEntity());
     }
     public List<AuthorListDto> findAll(){
-        List<AuthorListDto> authorListDto = new ArrayList<>();
-        for(Author author : this.authorMemoryRepository.findAll()){
-            authorListDto.add(new AuthorListDto(author.getId(),author.getName()));
-        }
-        return authorListDto;
+//        List<AuthorListDto> authorListDto = new ArrayList<>();
+//        for(Author author : this.authorMemoryRepository.findAll()){
+//            authorListDto.add(author.listFromEntity());
+//        }
+
+        return this.authorMemoryRepository.findAll().stream().
+                map(author -> author.listFromEntity())
+                .collect(Collectors.toList());
     }
     public AuthorDetailDto findById(Long id) throws NoSuchElementException{
 
         Author author = this.authorMemoryRepository.findById(id).orElseThrow(()->new NoSuchElementException("검색된 결과가 없습니다."));
 
-        return new AuthorDetailDto(author.getId(),author.getName());
+        return author.detailFromEntity();
     }
 
     public void updatePassword(AuthorUpdatePw authorUpdatePw){
