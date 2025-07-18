@@ -11,6 +11,8 @@ import com.beyond.basic.b2_board.post.repository.PostRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,6 +39,7 @@ public class PostService {
         // authorId가 실제 있는지 없는지 검증.
 //        postRepository.find(postCreateDto.getAuthorId())
         Author author = authorRepository.findById(postCreateDto.getAuthorId()).orElseThrow(()->new EntityNotFoundException("존재하지 않는 게시글입니다."));
+
         postRepository.save(postCreateDto.toEntity(author));
     }
 
@@ -49,10 +52,23 @@ public class PostService {
 //        return PostDetailDto.fromEntity(post,post.getAuthor());
 
         //엔티티간의 관계성 설정을 통해 Author 객체를 쉽게 조회하는 경우
+        //        직접 조회해서 count 찾는 경우
+//        return PostDetailDto.fromEntity(post, author);
+//     OneToMany 관계를 설정해 count값 찾는 경우
         return PostDetailDto.fromEntity(post);
     }
 
-    public List<PostListDto> findAll(){
-              return  postRepository.findAll().stream().map((a)->new PostListDto().fromEntity(a)).collect(Collectors.toList());
+    public Page<PostListDto> findAll(Pageable pageable){
+        // postList를 조회할 떄 참조관계에 있는 author까지 조회하게 되므로 , N(author쿼리) + 1(post 쿼리) 문제 발생
+        // jpa는 기본 방향성이 fetch lazy 이므로, 참조하는 시점에 쿼리를 내보내게 되어 N+1 Join 문을 만들어주지 않고 문제 발생
+//        List<Post> postList = postRepository.findAll(); // 일반 findAll
+//        List<Post> postList = postRepository.findAllJoin(); // 일반 inner join
+//        List<Post> postList = postRepository.findAllFetchJoin(); // inner join fetch
+
+
+        // 페이지 처리 findAll 호출
+        Page<Post> postList = postRepository.findAllByDelYn(pageable,"N");
+//              return  postList.stream().map((a)->new PostListDto().fromEntity(a)).collect(Collectors.toList());
+              return  postList.map((a)->new PostListDto().fromEntity(a));
     }
 }

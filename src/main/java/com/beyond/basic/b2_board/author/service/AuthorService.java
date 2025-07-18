@@ -7,6 +7,8 @@ import com.beyond.basic.b2_board.author.dto.AuthorListDto;
 import com.beyond.basic.b2_board.author.dto.AuthorUpdatePw;
 //import com.beyond.basic.b2_board.repository.AuthorJdbcRepository;
 import com.beyond.basic.b2_board.author.repository.AuthorRepository;
+import com.beyond.basic.b2_board.post.domain.Post;
+import com.beyond.basic.b2_board.post.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -41,7 +43,7 @@ public class AuthorService {
 // 다형성 설계는 불가
 
     private final AuthorRepository authorRepository;
-
+    private final PostRepository postRepository;
 
     //객체 조립은 서비스 담당
     public void save(AuthorCreateDto authorCreateDto){
@@ -66,7 +68,8 @@ public class AuthorService {
     public AuthorDetailDto findById(Long id) throws NoSuchElementException{
 
         Author author = getOrElseThrow(id);
-
+        List<Post> posts = postRepository.findByAuthor(author);
+//        return AuthorDetailDto.fromEntity(author, posts.size());
         return AuthorDetailDto.fromEntity(author);
     }
 

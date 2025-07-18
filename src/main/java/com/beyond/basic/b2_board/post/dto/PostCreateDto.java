@@ -24,6 +24,7 @@ public class PostCreateDto {
                 .title(this.title)
                 .contents(this.contents)
                 .author(author)
+                .delYn("N")
                 .build();
     }
 }
