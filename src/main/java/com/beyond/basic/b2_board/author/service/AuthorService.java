@@ -1,11 +1,12 @@
-package com.beyond.basic.b2_board.service;
+package com.beyond.basic.b2_board.author.service;
 
-import com.beyond.basic.b2_board.domain.Author;
-import com.beyond.basic.b2_board.dto.AuthorCreateDto;
-import com.beyond.basic.b2_board.dto.AuthorDetailDto;
-import com.beyond.basic.b2_board.dto.AuthorListDto;
-import com.beyond.basic.b2_board.dto.AuthorUpdatePw;
-import com.beyond.basic.b2_board.repository.AuthorJdbcRepository;
+import com.beyond.basic.b2_board.author.domain.Author;
+import com.beyond.basic.b2_board.author.dto.AuthorCreateDto;
+import com.beyond.basic.b2_board.author.dto.AuthorDetailDto;
+import com.beyond.basic.b2_board.author.dto.AuthorListDto;
+import com.beyond.basic.b2_board.author.dto.AuthorUpdatePw;
+//import com.beyond.basic.b2_board.repository.AuthorJdbcRepository;
+import com.beyond.basic.b2_board.author.repository.AuthorRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,7 +40,7 @@ public class AuthorService {
 // 의존성 주입방법 3. RequiredArgs 어노테이션 사용 -> 반드시 초기화 되어야 하는 필드(final 등)을 대상으로 생성자를 자동생성
 // 다형성 설계는 불가
 
-    private final AuthorJdbcRepository authorRepository;
+    private final AuthorRepository authorRepository;
 
 
     //객체 조립은 서비스 담당
@@ -64,20 +65,26 @@ public class AuthorService {
     @Transactional(readOnly = true)
     public AuthorDetailDto findById(Long id) throws NoSuchElementException{
 
-        Author author = this.authorRepository.findById(id).orElseThrow(()->new NoSuchElementException("검색된 결과가 없습니다."));
+        Author author = getOrElseThrow(id);
 
         return AuthorDetailDto.fromEntity(author);
     }
 
+    public Author getOrElseThrow(Long id) {
+        return this.authorRepository.findById(id).orElseThrow(() -> new NoSuchElementException("검색된 결과가 없습니다."));
+    }
 
+    @Transactional
     public void updatePassword(AuthorUpdatePw authorUpdatePw){
         Author author = this.authorRepository.findByEmail(authorUpdatePw.getEmail()).orElseThrow(()->new NoSuchElementException("비밀번호 변경에 실패했습니다."));
         author.updatePw(authorUpdatePw.getPassword());
+        // dirty checking : 객체를 수정한 후 별도의 update 쿼리 발생시키지 않아도, 영속성 컨텍스트에 의해 겍체 변경사항 자동 DB반영
+        // repository에 update해주지 않아도 entitymanager가 자동으로 update해준다.
     }
 
     public void delete(Long id){
-        this.authorRepository.findById(id).orElseThrow(()->new NoSuchElementException("회원 탈퇴에 실패하였습니다."));
-        this.authorRepository.delete(id);
+        Author author = this.authorRepository.findById(id).orElseThrow(()->new NoSuchElementException("회원 탈퇴에 실패하였습니다."));
+        this.authorRepository.delete(author);
     }
 
 

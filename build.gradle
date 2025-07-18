@@ -28,8 +28,8 @@ dependencies {
 	//아래 의존성은 db연결 및 관리를 위한 의존성 : jdbc,mybatis,jpa
 	// db 의존성은 바로 db 정보를 찾아 ㅇ녀결 시도하므로, db 연결정보 사전정보 필요
 	implementation 'org.springframework.boot:spring-boot-starter-data-jdbc'
-//	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-//	implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.4'
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.4'
 	runtimeOnly 'org.mariadb.jdbc:mariadb-java-client'
 
 
@@ -46,6 +46,8 @@ dependencies {
 
 	// 서버단에서 화면을 만들어서 렌더링 해주기 위한 기술 중 하나
 	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+
+	implementation 'org.springframework.boot:spring-boot-starter-validation'
 }
 
 tasks.named('test') {

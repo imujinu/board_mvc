@@ -1,13 +1,10 @@
-package com.beyond.basic.b2_board.repository;
+package com.beyond.basic.b2_board.author.repository;
 
-import com.beyond.basic.b2_board.domain.Author;
-import org.apache.ibatis.annotations.Insert;
+import com.beyond.basic.b2_board.author.domain.Author;
 import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Select;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 
 @Repository
