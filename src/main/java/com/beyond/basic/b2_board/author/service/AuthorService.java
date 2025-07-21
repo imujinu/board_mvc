@@ -50,7 +50,21 @@ public class AuthorService {
         //이메일 중복 검증
         authorRepository.findByEmail(authorCreateDto.getEmail()).ifPresent(a -> { throw new IllegalArgumentException("이미 존재하는 이메일입니다."); });
                         //비밀번호 길이 검증
-        this.authorRepository.save(authorCreateDto.authorToEntity());
+
+        Author author =authorCreateDto.authorToEntity();
+                this.authorRepository.save(author);
+
+        // cascading 테스트 : 회원이 생성될 때, 곧바로 "가입인사" 글을 생성하는 상황
+        // 방법 1 : 직접 POST 객체 생성 후 저장
+        Post post = Post.builder()
+                .title("안녕하세요")
+                .contents(authorCreateDto.getName()+"입니다. 반갑습니다.")
+                .author(author)
+                .build();
+//        postRepository.save(post);
+        // 방법 2: cascade 옵션 활용
+        author.getPostList().add(post);
+
     }
 
     @Transactional(readOnly = true)

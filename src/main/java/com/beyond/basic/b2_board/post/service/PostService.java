@@ -1,4 +1,4 @@
-package com.beyond.basic.b2_board.post;
+package com.beyond.basic.b2_board.post.service;
 
 import com.beyond.basic.b2_board.author.domain.Author;
 import com.beyond.basic.b2_board.author.repository.AuthorRepository;
@@ -9,17 +9,11 @@ import com.beyond.basic.b2_board.post.dto.PostDetailDto;
 import com.beyond.basic.b2_board.post.dto.PostListDto;
 import com.beyond.basic.b2_board.post.repository.PostRepository;
 import jakarta.persistence.EntityNotFoundException;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @Transactional

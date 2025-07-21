@@ -1,10 +1,10 @@
 package com.beyond.basic.b2_board.post.controller;
 
 import com.beyond.basic.b2_board.author.dto.CommonDto;
-import com.beyond.basic.b2_board.post.PostService;
 import com.beyond.basic.b2_board.post.dto.PostCreateDto;
 import com.beyond.basic.b2_board.post.dto.PostDetailDto;
 import com.beyond.basic.b2_board.post.dto.PostListDto;
+import com.beyond.basic.b2_board.post.service.PostService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/post")
 @RequiredArgsConstructor
 public class PostController {
-    private final PostService postService;
+    private final com.beyond.basic.b2_board.post.service.PostService postService;
 
     @PostMapping("/create")
     public ResponseEntity<?> create(@Valid @RequestBody PostCreateDto postCreateDto){
