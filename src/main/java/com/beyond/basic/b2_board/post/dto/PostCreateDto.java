@@ -17,7 +17,8 @@ public class PostCreateDto {
     @NotEmpty(message = "제목은 필수 값입니다.")
     private String title;
     private String contents;
-    private Long authorId;
+//    @NotNull // 숫자는 NotEmpty사용 불가
+//    private Long authorId;
 
     public Post toEntity(Author author){
         return Post.builder()

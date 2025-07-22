@@ -4,6 +4,7 @@ import com.beyond.basic.b2_board.author.domain.Author;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -19,15 +20,18 @@ public class JwtTokenProvider {
     @Value("${jwt.expirationAt}")
     private int expirationAt;
 
-    @Value("${jwt.secretKeyAt")
+    @Value("${jwt.secretKeyAt}")
     private String secretKeyAt;
 
     private Key secret_at_key;
 
+    //스프링빈이 만들어지는 시점에 빈이 만들어진 직후에 아래 메서드가 바로 실행
+    @PostConstruct
     public void makeKey(){
         // 암호화된 시크릿키를 다시 디코딩해주어야 한다. 두번째 인자는 어떤 알고리즘이 작성할 것인지.
         secret_at_key = new SecretKeySpec(java.util.Base64.getDecoder().decode(secretKeyAt), SignatureAlgorithm.HS512.getJcaName());
     }
+
 
     public String createAtToken(Author author){
         String email = author.getEmail();
@@ -48,6 +52,6 @@ public class JwtTokenProvider {
                 //시크릿키
                 .signWith(secret_at_key)
                 .compact();
-        return null;
+        return token;
     }
 }
