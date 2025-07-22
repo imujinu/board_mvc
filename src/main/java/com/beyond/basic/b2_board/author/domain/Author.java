@@ -31,7 +31,7 @@ public class Author extends BaseTimeEntity {
         private String name;
 //        @Column(name = "pw") : 되도록이면 컬럼명과 변수명을 일치시키는 것이 혼선을 줄일 수 있음
 
-    @Column(length = 50, nullable = false)
+    @Column(nullable = false)
         private String password;
         private String email;
         @Enumerated(EnumType.STRING)

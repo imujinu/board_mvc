@@ -1,20 +1,19 @@
 package com.beyond.basic.b2_board.author.service;
 
 import com.beyond.basic.b2_board.author.domain.Author;
-import com.beyond.basic.b2_board.author.dto.AuthorCreateDto;
-import com.beyond.basic.b2_board.author.dto.AuthorDetailDto;
-import com.beyond.basic.b2_board.author.dto.AuthorListDto;
-import com.beyond.basic.b2_board.author.dto.AuthorUpdatePw;
+import com.beyond.basic.b2_board.author.dto.*;
 //import com.beyond.basic.b2_board.repository.AuthorJdbcRepository;
 import com.beyond.basic.b2_board.author.repository.AuthorRepository;
 import com.beyond.basic.b2_board.post.domain.Post;
 import com.beyond.basic.b2_board.post.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 //Component로 대체 가능 (트랜잭션 처리가 없는 경우)
@@ -44,15 +43,15 @@ public class AuthorService {
 
     private final AuthorRepository authorRepository;
     private final PostRepository postRepository;
+    private final PasswordEncoder passwordEncoder;
 
     //객체 조립은 서비스 담당
     public void save(AuthorCreateDto authorCreateDto){
         //이메일 중복 검증
         authorRepository.findByEmail(authorCreateDto.getEmail()).ifPresent(a -> { throw new IllegalArgumentException("이미 존재하는 이메일입니다."); });
                         //비밀번호 길이 검증
-
-        Author author =authorCreateDto.authorToEntity();
-                this.authorRepository.save(author);
+        String encodedPassword = passwordEncoder.encode(authorCreateDto.getPassword());
+        Author author =authorCreateDto.authorToEntity(encodedPassword);
 
         // cascading 테스트 : 회원이 생성될 때, 곧바로 "가입인사" 글을 생성하는 상황
         // 방법 1 : 직접 POST 객체 생성 후 저장
@@ -64,6 +63,7 @@ public class AuthorService {
 //        postRepository.save(post);
         // 방법 2: cascade 옵션 활용
         author.getPostList().add(post);
+        this.authorRepository.save(author);
 
     }
 
@@ -105,4 +105,21 @@ public class AuthorService {
     }
 
 
+    public Author doLogin(AuthorLoginDto authorLoginDto) {
+        Optional<Author> author = authorRepository.findByEmail(authorLoginDto.getEmail());
+        boolean check = true;
+
+        if(!author.isPresent()){
+            check=false;
+        }else{
+            if(!passwordEncoder.matches(authorLoginDto.getPassword(), author.get().getPassword())){
+                check=false;
+            }
+        }
+
+        if(!check){
+            throw new IllegalArgumentException("이메일 또는 비밀번호가 일치하지 않습니다.");
+        }
+        return author.get();
+    }
 }

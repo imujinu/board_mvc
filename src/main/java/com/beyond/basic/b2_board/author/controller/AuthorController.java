@@ -1,8 +1,10 @@
 package com.beyond.basic.b2_board.author.controller;
 
+import com.beyond.basic.b2_board.author.domain.Author;
 import com.beyond.basic.b2_board.author.dto.*;
 //import com.beyond.basic.b2_board.dto.*;
 import com.beyond.basic.b2_board.author.service.AuthorService;
+import com.beyond.basic.b2_board.common.JwtTokenProvider;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -18,6 +20,7 @@ import java.util.NoSuchElementException;
 public class AuthorController {
     //서비스 주입받기
     private final AuthorService authorService;
+    private final JwtTokenProvider jwtTokenProvider;
 
     //회원가입
 
@@ -75,6 +78,15 @@ public class AuthorController {
         }
     }
 
+    @PostMapping("/doLogin")
+    public ResponseEntity<?> doLogin(@RequestBody AuthorLoginDto authorLoginDto){
+        Author author = authorService.doLogin(authorLoginDto);
+        // 토큰 생성 및 return
+        String token = jwtTokenProvider.createAtToken(author);
+
+        return new ResponseEntity<>(new CommonDto(token,HttpStatus.OK.value(),"토큰이 생성되었습니다."),HttpStatus.OK);
+    }
+
     //회원퇄퇴(삭제) : /author/1
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<String> delete(@PathVariable Long id){
@@ -84,6 +96,7 @@ public class AuthorController {
         }catch (RuntimeException e){
             return new ResponseEntity<>("회원 탈퇴 실패", HttpStatus.BAD_REQUEST);
     }
+
 
 
 }}
