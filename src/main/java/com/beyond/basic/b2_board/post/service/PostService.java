@@ -10,12 +10,16 @@ import com.beyond.basic.b2_board.post.dto.PostListDto;
 import com.beyond.basic.b2_board.post.repository.PostRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cglib.core.Local;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 @Service
 @Transactional
@@ -37,8 +41,17 @@ public class PostService {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String email = authentication.getName(); // subject : email
         Author author = authorRepository.findByEmail(email).orElseThrow(()->new EntityNotFoundException("존재하지 않는 게시글입니다."));
+        LocalDateTime appointmentTime = null;
 
-        postRepository.save(postCreateDto.toEntity(author));
+        if(postCreateDto.getAppointment().equals("Y")){
+            if(postCreateDto.getAppointmentTime()==null || postCreateDto.getAppointmentTime().isEmpty()){
+                throw new IllegalArgumentException("시간 정보가 비어져 있습니다.");
+            }
+            DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm");
+            appointmentTime = LocalDateTime.parse(postCreateDto.getAppointmentTime(), dateTimeFormatter);
+        }
+
+        postRepository.save(postCreateDto.toEntity(author, appointmentTime));
     }
 
     public PostDetailDto findById(Long id) {
@@ -65,7 +78,7 @@ public class PostService {
 
 
         // 페이지 처리 findAll 호출
-        Page<Post> postList = postRepository.findAllByDelYn(pageable,"N");
+        Page<Post> postList = postRepository.findAllByDelYnAndAppointment(pageable,"N","N");
 //              return  postList.stream().map((a)->new PostListDto().fromEntity(a)).collect(Collectors.toList());
               return  postList.map((a)->new PostListDto().fromEntity(a));
     }

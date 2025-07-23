@@ -62,6 +62,7 @@ public class AuthorService {
                 .title("안녕하세요")
                 .contents(authorCreateDto.getName()+"입니다. 반갑습니다.")
                 .author(author)
+                .delYn("N")
                 .build();
 //        postRepository.save(post);
         // 방법 2: cascade 옵션 활용
