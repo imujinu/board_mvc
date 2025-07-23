@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -59,7 +60,9 @@ public class AuthorController {
     // 서버에서 별도의 try catch 하지 않으면, 에러 발생ㅅ ㅣ500에러 + 스프링의 포맷으로 에러 리턴
     @GetMapping("/detail/{id}")
     // ADMIN 권한이 있는지를 authentication 객체에서 쉽게 확인
-    @PreAuthorize("hasRole('ADMIN') or hasRole('SELLER')")
+    // 권한이 없을 경우 필터 체인에서 에러가 터진다.
+//    @PreAuthorize("hasRole('ADMIN') or hasRole('SELLER')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> findById(@PathVariable Long id){
         try{
             AuthorDetailDto author = this.authorService.findById(id);
@@ -68,6 +71,12 @@ public class AuthorController {
             e.printStackTrace();
             return new ResponseEntity<>(new CommonErrorDto(HttpStatus.NOT_FOUND.value(), "회원 조회 실패"), HttpStatus.NOT_FOUND);
         }
+    }
+
+    @GetMapping("/myinfo")
+    public ResponseEntity<?> myInfo(){
+        AuthorDetailDto authorDetailDto = authorService.myInfo();
+        return new ResponseEntity<>(new CommonDto(authorDetailDto, HttpStatus.OK.value(), "내 정보 보기"), HttpStatus.OK);
     }
 
     //비밀번호 수정 : email,password -> json

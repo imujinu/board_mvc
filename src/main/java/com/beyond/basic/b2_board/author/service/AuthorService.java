@@ -6,7 +6,10 @@ import com.beyond.basic.b2_board.author.dto.*;
 import com.beyond.basic.b2_board.author.repository.AuthorRepository;
 import com.beyond.basic.b2_board.post.domain.Post;
 import com.beyond.basic.b2_board.post.repository.PostRepository;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -122,4 +125,14 @@ public class AuthorService {
         }
         return author.get();
     }
+
+    public AuthorDetailDto myInfo(){
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        Author author = authorRepository.findByEmail(email).orElseThrow(()->new EntityNotFoundException("존재하지 않는 유저입니다."));
+
+        return AuthorDetailDto.fromEntity(author);
+
+
+    }
+
 }

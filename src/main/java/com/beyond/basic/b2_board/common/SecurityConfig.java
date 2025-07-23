@@ -23,7 +23,8 @@ import java.util.Arrays;
 @EnableMethodSecurity
 public class SecurityConfig {
     private final JwtTokenFilter jwtTokenFilter;
-
+    private final JwtAuthenticationHandler jwtAuthenticationHandler;
+    private final JwtAuthorizationHandler jwtAuthorizationHandler;
     //filter 계층에서 filter 로직을 커스텀한다.
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
@@ -39,6 +40,10 @@ public class SecurityConfig {
                 .sessionManagement(s->s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 //token을 검증하고, token 검증 통해 Authentication 객체 생성, 요청이 들어오면 먼저 필터로 들어옴
                 .addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class)
+                .exceptionHandling(e->
+                        e.authenticationEntryPoint(jwtAuthenticationHandler) //401의 경우
+                                .accessDeniedHandler(jwtAuthorizationHandler) // 403의 경우
+                )
                 // 예외 api 정책 설정
                 // authenticated() : 예외를 제외한 모든 요청에 대해서 Atuhentication 객체가 생성되기를 요구함
                 .authorizeHttpRequests(a-> a.requestMatchers("/author/create","/author/doLogin").permitAll().anyRequest().authenticated())
