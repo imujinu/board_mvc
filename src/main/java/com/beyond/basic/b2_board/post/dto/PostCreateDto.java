@@ -21,6 +21,7 @@ public class PostCreateDto {
     private String contents;
     @Builder.Default
     private String appointment="N";
+    private String category;
 
     //시간 정보는 직접 localDateTime으로 형변환 하는 경우가 많음.
 
@@ -35,6 +36,7 @@ public class PostCreateDto {
                 .author(author)
                 .delYn("N")
                 .appointment(this.appointment)
+                .category(this.category)
                 .appointmentTime(appointmentTime)
                 .build();
     }

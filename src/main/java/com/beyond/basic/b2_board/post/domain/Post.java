@@ -33,6 +33,7 @@ public class Post extends BaseTimeEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="author_id") // fk관계성
     private Author author;
+    private String category;
 
     public void updateAppointment(String appointment){
         this.appointment=appointment;

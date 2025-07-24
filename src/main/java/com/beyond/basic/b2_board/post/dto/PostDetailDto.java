@@ -16,6 +16,7 @@ public class PostDetailDto {
     private String title;
     private String contents;
     private String authorEmail;
+    private String category;
 //    public static  PostDetailDto fromEntity(Post post, Author author){
 //        return PostDetailDto.builder()
 //                .id(post.getId())
@@ -30,6 +31,7 @@ public class PostDetailDto {
                 .id(post.getId())
                 .title(post.getTitle())
                 .contents(post.getContents())
+                .category(post.getCategory())
                 .authorEmail(post.getAuthor().getEmail())
                 .build();
     }

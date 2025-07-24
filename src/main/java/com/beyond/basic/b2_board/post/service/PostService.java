@@ -7,12 +7,18 @@ import com.beyond.basic.b2_board.post.domain.Post;
 import com.beyond.basic.b2_board.post.dto.PostCreateDto;
 import com.beyond.basic.b2_board.post.dto.PostDetailDto;
 import com.beyond.basic.b2_board.post.dto.PostListDto;
+import com.beyond.basic.b2_board.post.dto.PostSearchDto;
 import com.beyond.basic.b2_board.post.repository.PostRepository;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cglib.core.Local;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -20,6 +26,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 @Transactional
@@ -69,16 +77,43 @@ public class PostService {
         return PostDetailDto.fromEntity(post);
     }
 
-    public Page<PostListDto> findAll(Pageable pageable){
+    public Page<PostListDto> findAll(Pageable pageable, PostSearchDto dto){
         // postList를 조회할 떄 참조관계에 있는 author까지 조회하게 되므로 , N(author쿼리) + 1(post 쿼리) 문제 발생
         // jpa는 기본 방향성이 fetch lazy 이므로, 참조하는 시점에 쿼리를 내보내게 되어 N+1 Join 문을 만들어주지 않고 문제 발생
 //        List<Post> postList = postRepository.findAll(); // 일반 findAll
 //        List<Post> postList = postRepository.findAllJoin(); // 일반 inner join
 //        List<Post> postList = postRepository.findAllFetchJoin(); // inner join fetch
 
-
+        // 검색을 위해 Specification 객체 스프링에서 제공
         // 페이지 처리 findAll 호출
-        Page<Post> postList = postRepository.findAllByDelYnAndAppointment(pageable,"N","N");
+        // specification 객체는 복잡한 쿼리를 명세를 이용하여 정의하는 방식으로, 쿼리를 쉽게 생성
+        Specification<Post> specification = new Specification<Post>() {
+            @Override
+            public Predicate toPredicate(Root<Post> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
+                // Root : 엔티티의 속성을 접근하기 위한 객체 CriteriaBuilder : 쿼리를 생성하기 위한 객체
+                List<Predicate> predicateList = new ArrayList<>();
+                predicateList.add(criteriaBuilder.equal(root.get("delYn"),"N"));
+                predicateList.add(criteriaBuilder.equal(root.get("appointment"),"N"));
+                if(dto.getCategory()!=null){
+                    predicateList.add(criteriaBuilder.equal(root.get("category"),dto.getCategory()));
+                }
+                if(dto.getTitle()!=null){
+                    predicateList.add(criteriaBuilder.like(root.get("title"),"%"+dto.getTitle()+"%"));
+                }
+
+                Predicate[] predicatesArr = new Predicate[predicateList.size()];
+                for(int i=0; i<predicateList.size(); i++){
+                    predicatesArr[i] = predicateList.get(i);
+                }
+
+//                위의 검색 조건들을 하나(한 줄) 의 Predicate 객체로 만들어서 return
+                Predicate predicate = criteriaBuilder.and(predicatesArr);
+                return predicate;
+            }
+        };
+
+
+        Page<Post> postList = postRepository.findAll(specification,pageable);
 //              return  postList.stream().map((a)->new PostListDto().fromEntity(a)).collect(Collectors.toList());
               return  postList.map((a)->new PostListDto().fromEntity(a));
     }
