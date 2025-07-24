@@ -46,7 +46,7 @@ public class SecurityConfig {
                 )
                 // 예외 api 정책 설정
                 // authenticated() : 예외를 제외한 모든 요청에 대해서 Atuhentication 객체가 생성되기를 요구함
-                .authorizeHttpRequests(a-> a.requestMatchers("/author/create","/author/doLogin").permitAll().anyRequest().authenticated())
+                .authorizeHttpRequests(a-> a.requestMatchers("/author/create/**","/author/doLogin").permitAll().anyRequest().authenticated())
                 .build();
     }
 

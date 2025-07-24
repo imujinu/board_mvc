@@ -37,6 +37,7 @@ public class Author extends BaseTimeEntity {
         @Enumerated(EnumType.STRING)
         @Builder.Default // 빌더 패턴에서 변수 초기화 시 Builder.default 필수
         private Role role = Role.USER;
+        private String profileImage;
         //컬럼명에 캐멀케이스 사용 시, db에는 created_time으로 컬럼 생성
 
     //OneToMany는 선택 사항이다. 또한 default가 lazy다.
@@ -83,5 +84,9 @@ public class Author extends BaseTimeEntity {
                 ", password='" + password + '\'' +
                 ", email='" + email + '\'' +
                 '}';
+    }
+
+    public void updateImgUrl(String imgUrl) {
+        this.profileImage = imgUrl;
     }
 }
