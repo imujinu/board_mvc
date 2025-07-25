@@ -61,7 +61,7 @@ public class AuthorService {
     //객체 조립은 서비스 담당
     public void save(AuthorCreateDto authorCreateDto, MultipartFile profileImage){
         //이메일 중복 검증
-        authorRepository.findByEmail(authorCreateDto.getEmail()).ifPresent(a -> { throw new IllegalArgumentException("이미 존재하는 이메일입니다."); });
+         authorRepository.findByEmail(authorCreateDto.getEmail()).ifPresent(a -> { throw new IllegalArgumentException("이미 존재하는 이메일입니다."); });
                         //비밀번호 길이 검증
         String encodedPassword = passwordEncoder.encode(authorCreateDto.getPassword());
         Author author =authorCreateDto.authorToEntity(encodedPassword);
@@ -79,6 +79,8 @@ public class AuthorService {
 //        author.getPostList().add(post);
         this.authorRepository.save(author);
 
+        if(profileImage!=null){
+
         // image명 설정
         String fileName = "user-"+author.getId()+"-profileimage-"+profileImage.getOriginalFilename();
 
@@ -92,14 +94,17 @@ public class AuthorService {
         // 이미지를 업로드 ( byte 형태로 )
         try {
             s3Client.putObject(putObjectRequest, RequestBody.fromBytes(profileImage.getBytes()));
-        } catch (IOException e) {
+        } catch(IOException e ){
+            throw new IllegalArgumentException("IOEerror!!");
+        }   catch (Exception e) {
             // checked -> unchecked로 바꿔 전체 rollback 되도록 예외처리
-            throw new IllegalArgumentException("이미지 업로드 실패");
+            throw new IllegalArgumentException("예상못한 에러!!");
         }
 
         //이미지 url 추출
         String imgUrl = s3Client.utilities().getUrl(a->a.bucket(bucket).key(fileName)).toExternalForm();
         author.updateImgUrl(imgUrl);
+        }
     }
 
     @Transactional(readOnly = true)

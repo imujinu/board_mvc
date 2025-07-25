@@ -12,6 +12,9 @@ import java.util.Optional;
 @Repository
 public interface AuthorRepository extends JpaRepository<Author, Long> {
     // save, findAll, findById 등은 사전에 구현
+    // pk 값은 자동으로 메서드로 생성해줌
     // 그외의 다른 컬럼으로 조회할 때는 findBy + 컬럼명 형식으로 선언만 하면 실행시점에 자동 구현.
+    // 단건 조회일 경우 Optional 객체로 감싸주는 것이 좋다 => 서비스에서 에러 처리 가능
+    // 다건 조회는 List로 감싸기
     Optional<Author> findByEmail(String email);
 }
